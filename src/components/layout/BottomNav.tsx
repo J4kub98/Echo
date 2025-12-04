@@ -1,8 +1,7 @@
 "use client";
 
 import { Home, Search, Grid, Bell, User, Plus } from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 interface BottomNavProps {
   onCreateClick: () => void;
@@ -10,6 +9,7 @@ interface BottomNavProps {
 
 export function BottomNav({ onCreateClick }: BottomNavProps) {
   const pathname = usePathname();
+  const router = useRouter();
 
   const navItems = [
     { id: "home", icon: Home, label: "Home", href: "/" },
@@ -41,16 +41,16 @@ export function BottomNav({ onCreateClick }: BottomNavProps) {
           const isActive = pathname === item.href;
 
           return (
-            <Link
+            <button
               key={item.id}
-              href={item.href!}
+              onClick={() => router.push(item.href!)}
               className={`flex flex-col items-center justify-center gap-1 px-3 py-2 touch-manipulation transition-colors ${
                 isActive ? "text-primary" : "text-text-tertiary"
               }`}
               aria-label={item.label}
             >
               <Icon className="w-6 h-6" />
-            </Link>
+            </button>
           );
         })}
       </div>
