@@ -13,6 +13,8 @@ interface MoodCardProps {
   likes: number;
   comments: number;
   timestamp: Date;
+  isLiked?: boolean;
+  onLike?: () => void;
 }
 
 const scopeConfig = {
@@ -32,6 +34,8 @@ export function MoodCard({
   likes,
   comments,
   timestamp,
+  isLiked,
+  onLike,
 }: MoodCardProps) {
   const timeAgo = formatDistanceToNow(new Date(timestamp), {
     addSuffix: true,
@@ -39,6 +43,12 @@ export function MoodCard({
   });
 
   const scopeInfo = scopeConfig[scope] || scopeConfig.public;
+
+  const handleLikeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onLike?.();
+  };
 
   const CardContent = (
     <div className="bg-surface rounded-card p-4 shadow-card hover:shadow-md transition-shadow cursor-pointer">
@@ -80,8 +90,11 @@ export function MoodCard({
 
       {/* Actions */}
       <div className="flex items-center gap-4 text-text-tertiary">
-        <button className="flex items-center gap-1.5 text-sm hover:text-primary transition-colors touch-manipulation">
-          <Heart className="w-4 h-4" />
+        <button 
+          onClick={handleLikeClick}
+          className={`flex items-center gap-1.5 text-sm transition-colors touch-manipulation ${isLiked ? "text-primary" : "hover:text-primary"}`}
+        >
+          <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
           {likes > 0 && <span>{likes}</span>}
         </button>
         <button className="flex items-center gap-1.5 text-sm hover:text-primary transition-colors touch-manipulation">

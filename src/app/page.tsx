@@ -1,13 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { Feed } from "@/components/feed/Feed";
-import { BottomNav } from "@/components/layout/BottomNav";
-import { CreateHub } from "@/components/layout/CreateHub";
 
 export default function Home() {
-  const [showCreate, setShowCreate] = useState(false);
-
   return (
     <main className="min-h-screen pb-20 safe-bottom">
       {/* Header */}
@@ -19,12 +14,6 @@ export default function Home() {
 
       {/* Feed */}
       <Feed />
-
-      {/* Bottom Navigation */}
-      <BottomNav onCreateClick={() => setShowCreate(true)} />
-
-      {/* Create Hub Overlay */}
-      {showCreate && <CreateHub onClose={() => setShowCreate(false)} />}
     </main>
   );
 }

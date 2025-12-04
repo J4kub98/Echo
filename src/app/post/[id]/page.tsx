@@ -24,22 +24,40 @@ export default function PostDetailPage() {
   const [replies, setReplies] = useState<Reply[]>([]);
   const [newReply, setNewReply] = useState("");
   const [loading, setLoading] = useState(true);
+  const [likesCount, setLikesCount] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
 
   useEffect(() => {
     if (id) fetchPostData();
-  }, [id]);
+  }, [id, user]);
 
   async function fetchPostData() {
     try {
-      // Fetch entry
+      // Fetch entry with reaction count
       const { data: entryData, error: entryError } = await supabase
         .from("mood_entries")
-        .select("*")
+        .select("*, reactions(count)")
         .eq("id", id)
         .single();
 
       if (entryError) throw entryError;
       setEntry(entryData);
+      
+      // Safe cast or check for the count
+      const reactions = entryData.reactions as unknown as { count: number }[];
+      setLikesCount(reactions?.[0]?.count || 0);
+
+      // Check if user liked
+      if (user) {
+        const { data: userReaction } = await supabase
+          .from("reactions")
+          .select("*")
+          .eq("entry_id", id)
+          .eq("user_id", user.id)
+          .single();
+        
+        setIsLiked(!!userReaction);
+      }
 
       // Fetch replies
       const { data: repliesData, error: repliesError } = await supabase
@@ -54,6 +72,34 @@ export default function PostDetailPage() {
       console.error("Error fetching post:", error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleLike() {
+    if (!user || !entry) return;
+
+    try {
+      if (isLiked) {
+        await supabase
+          .from("reactions")
+          .delete()
+          .eq("entry_id", entry.id)
+          .eq("user_id", user.id);
+        setLikesCount(prev => prev - 1);
+      } else {
+        await supabase
+          .from("reactions")
+          .insert({
+            entry_id: entry.id,
+            user_id: user.id,
+            type: "like"
+          });
+        setLikesCount(prev => prev + 1);
+      }
+      setIsLiked(!isLiked);
+    } catch (error) {
+      console.error("Error toggling like:", error);
+      fetchPostData(); // Revert
     }
   }
 
@@ -96,9 +142,11 @@ export default function PostDetailPage() {
           title={entry.headline}
           body={entry.reflection}
           tags={entry.tags || []}
-          likes={0}
+          likes={likesCount}
           comments={replies.length}
           timestamp={new Date(entry.created_at)}
+          isLiked={isLiked}
+          onLike={handleLike}
         />
 
         <div className="space-y-4">

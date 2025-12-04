@@ -1,21 +1,22 @@
 "use client";
 
 import { Home, Search, Grid, Bell, User, Plus } from "lucide-react";
-import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface BottomNavProps {
   onCreateClick: () => void;
 }
 
 export function BottomNav({ onCreateClick }: BottomNavProps) {
-  const [active, setActive] = useState<string>("home");
+  const pathname = usePathname();
 
   const navItems = [
-    { id: "home", icon: Home, label: "Home" },
-    { id: "search", icon: Search, label: "Search" },
+    { id: "home", icon: Home, label: "Home", href: "/" },
+    { id: "search", icon: Search, label: "Search", href: "/search" },
     { id: "create", icon: Plus, label: "Create", isCenter: true },
-    { id: "activity", icon: Bell, label: "Activity" },
-    { id: "profile", icon: User, label: "Profile" },
+    { id: "activity", icon: Bell, label: "Activity", href: "/activity" },
+    { id: "profile", icon: User, label: "Profile", href: "/profile" },
   ];
 
   return (
@@ -23,8 +24,7 @@ export function BottomNav({ onCreateClick }: BottomNavProps) {
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
-          const isActive = active === item.id;
-
+          
           if (item.isCenter) {
             return (
               <button
@@ -38,17 +38,19 @@ export function BottomNav({ onCreateClick }: BottomNavProps) {
             );
           }
 
+          const isActive = pathname === item.href;
+
           return (
-            <button
+            <Link
               key={item.id}
-              onClick={() => setActive(item.id)}
+              href={item.href!}
               className={`flex flex-col items-center justify-center gap-1 px-3 py-2 touch-manipulation transition-colors ${
                 isActive ? "text-primary" : "text-text-tertiary"
               }`}
               aria-label={item.label}
             >
               <Icon className="w-6 h-6" />
-            </button>
+            </Link>
           );
         })}
       </div>

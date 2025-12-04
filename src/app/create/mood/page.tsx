@@ -2,29 +2,50 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth-context";
 
 export default function CreateMoodPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [headline, setHeadline] = useState("");
   const [reflection, setReflection] = useState("");
   const [scope, setScope] = useState<"public" | "community" | "circle" | "private">("public");
+  const [tags, setTags] = useState<string[]>([]);
+  const [currentTag, setCurrentTag] = useState("");
   const [loading, setLoading] = useState(false);
+
+  function handleAddTag(e: React.KeyboardEvent) {
+    if (e.key === "Enter" && currentTag.trim()) {
+      e.preventDefault();
+      if (!tags.includes(currentTag.trim())) {
+        setTags([...tags, currentTag.trim()]);
+      }
+      setCurrentTag("");
+    }
+  }
+
+  function removeTag(tagToRemove: string) {
+    setTags(tags.filter((tag) => tag !== tagToRemove));
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!user) {
+      alert("Musíš být přihlášen!");
+      return;
+    }
     setLoading(true);
 
     try {
-      // TODO: Get real user ID once auth is implemented
-      // For now, we might fail RLS if not authenticated, but let's try
       const { error } = await supabase.from("mood_entries").insert({
+        author_id: user.id,
         headline,
         reflection,
         scope,
-        tags: [], // TODO: Add tags input
-        mood_tone: "neutral", // Default for now
+        tags,
+        mood_tone: "neutral",
         is_anonymous: true,
       });
 
@@ -32,7 +53,7 @@ export default function CreateMoodPage() {
       router.push("/");
     } catch (error) {
       console.error("Error creating post:", error);
-      alert("Nepodařilo se vytvořit příspěvek. Jsi přihlášen?");
+      alert("Nepodařilo se vytvořit příspěvek.");
     } finally {
       setLoading(false);
     }
@@ -68,6 +89,28 @@ export default function CreateMoodPage() {
             placeholder="Rozepiš se o tom, co prožíváš..."
             className="w-full p-3 rounded-xl bg-surface border border-border focus:outline-none focus:border-primary transition-colors min-h-[150px]"
             required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-text-secondary">Štítky</label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {tags.map((tag) => (
+              <span key={tag} className="bg-primary/10 text-primary px-2 py-1 rounded-full text-sm flex items-center gap-1">
+                #{tag}
+                <button type="button" onClick={() => removeTag(tag)}>
+                  <X className="w-3 h-3" />
+                </button>
+              </span>
+            ))}
+          </div>
+          <input
+            type="text"
+            value={currentTag}
+            onChange={(e) => setCurrentTag(e.target.value)}
+            onKeyDown={handleAddTag}
+            placeholder="Přidej štítek a stiskni Enter..."
+            className="w-full p-3 rounded-xl bg-surface border border-border focus:outline-none focus:border-primary transition-colors"
           />
         </div>
 

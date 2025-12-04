@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { QuoteCard } from "./QuoteCard";
 import { MoodCard } from "./MoodCard";
 import { supabase, type MoodEntry } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth-context";
 
 // Hardcoded daily quote for now
 const dailyQuote = {
@@ -13,21 +14,32 @@ const dailyQuote = {
   author: "Anonymní",
 };
 
+interface MoodEntryWithStats extends MoodEntry {
+  reactions: { count: number }[];
+  replies: { count: number }[];
+  user_has_liked?: boolean;
+}
+
 export function Feed() {
-  const [entries, setEntries] = useState<MoodEntry[]>([]);
+  const { user } = useAuth();
+  const [entries, setEntries] = useState<MoodEntryWithStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeScope, setActiveScope] = useState<"all" | "public" | "community">("all");
 
   useEffect(() => {
     fetchEntries();
-  }, [activeScope]);
+  }, [activeScope, user]);
 
   async function fetchEntries() {
     setLoading(true);
     try {
       let query = supabase
         .from("mood_entries")
-        .select("*")
+        .select(`
+          *,
+          reactions (count),
+          replies (count)
+        `)
         .order("created_at", { ascending: false });
 
       if (activeScope !== "all") {
@@ -37,11 +49,68 @@ export function Feed() {
       const { data, error } = await query;
 
       if (error) throw error;
-      if (data) setEntries(data);
+
+      // Check if user liked each post
+      let entriesWithLikes = data as unknown as MoodEntryWithStats[];
+      
+      if (user && data) {
+        const { data: userReactions } = await supabase
+          .from("reactions")
+          .select("entry_id")
+          .eq("user_id", user.id);
+          
+        const likedEntryIds = new Set(userReactions?.map(r => r.entry_id));
+        
+        entriesWithLikes = entriesWithLikes.map(entry => ({
+          ...entry,
+          user_has_liked: likedEntryIds.has(entry.id)
+        }));
+      }
+
+      setEntries(entriesWithLikes || []);
     } catch (error) {
       console.error("Error fetching mood entries:", error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleLike(entryId: string, currentLiked: boolean) {
+    if (!user) return;
+
+    try {
+      if (currentLiked) {
+        await supabase
+          .from("reactions")
+          .delete()
+          .eq("entry_id", entryId)
+          .eq("user_id", user.id);
+      } else {
+        await supabase
+          .from("reactions")
+          .insert({
+            entry_id: entryId,
+            user_id: user.id,
+            type: "like"
+          });
+      }
+      
+      // Optimistic update
+      setEntries(prev => prev.map(entry => {
+        if (entry.id === entryId) {
+          const newCount = (entry.reactions[0]?.count || 0) + (currentLiked ? -1 : 1);
+          return {
+            ...entry,
+            user_has_liked: !currentLiked,
+            reactions: [{ count: newCount }]
+          };
+        }
+        return entry;
+      }));
+
+    } catch (error) {
+      console.error("Error toggling like:", error);
+      fetchEntries(); // Revert on error
     }
   }
 
@@ -82,14 +151,17 @@ export function Feed() {
         entries.map((item) => (
           <MoodCard
             key={item.id}
+            id={item.id}
             author="Anonymní"
             scope={item.scope}
             title={item.headline}
             body={item.reflection}
             tags={item.tags || []}
-            likes={0}
-            comments={0}
+            likes={item.reactions?.[0]?.count || 0}
+            comments={item.replies?.[0]?.count || 0}
             timestamp={new Date(item.created_at)}
+            isLiked={item.user_has_liked}
+            onLike={() => handleLike(item.id, !!item.user_has_liked)}
           />
         ))
       )}
