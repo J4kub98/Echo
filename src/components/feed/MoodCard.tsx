@@ -10,6 +10,7 @@ interface MoodCardProps {
   title: string;
   body: string;
   tags: string[];
+  moodTone?: string;
   likes: number;
   comments: number;
   timestamp: Date;
@@ -24,6 +25,15 @@ const scopeConfig = {
   private: { color: "text-text-tertiary", label: "Soukromé" },
 };
 
+const moodConfig: Record<string, { emoji: string; color: string }> = {
+  happy: { emoji: "😊", color: "bg-yellow-500" },
+  excited: { emoji: "🤩", color: "bg-orange-500" },
+  neutral: { emoji: "😐", color: "bg-gray-500" },
+  sad: { emoji: "😢", color: "bg-blue-500" },
+  anxious: { emoji: "😰", color: "bg-purple-500" },
+  angry: { emoji: "😠", color: "bg-red-500" },
+};
+
 export function MoodCard({
   id,
   author,
@@ -31,6 +41,7 @@ export function MoodCard({
   title,
   body,
   tags,
+  moodTone = "neutral",
   likes,
   comments,
   timestamp,
@@ -43,6 +54,7 @@ export function MoodCard({
   });
 
   const scopeInfo = scopeConfig[scope] || scopeConfig.public;
+  const moodInfo = moodConfig[moodTone] || moodConfig.neutral;
 
   const handleLikeClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -68,7 +80,10 @@ export function MoodCard({
 
       {/* Content */}
       <div className="mb-3">
-        <h3 className="text-base font-semibold text-text mb-2">{title}</h3>
+        <div className="flex items-start gap-2 mb-2">
+          <span className="text-xl" role="img" aria-label={moodTone}>{moodInfo.emoji}</span>
+          <h3 className="text-base font-semibold text-text">{title}</h3>
+        </div>
         <p className="text-sm leading-relaxed text-text-secondary line-clamp-4">
           {body}
         </p>

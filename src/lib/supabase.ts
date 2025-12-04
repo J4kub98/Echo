@@ -18,7 +18,8 @@ export interface MoodEntry {
   reflection: string;
   scope: "public" | "community" | "circle" | "private";
   tags: string[];
-  accent_hex: string;
+  mood_tone: string;
+  is_anonymous: boolean;
   created_at: string;
 }
 

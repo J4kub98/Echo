@@ -157,6 +157,7 @@ export function Feed() {
             title={item.headline}
             body={item.reflection}
             tags={item.tags || []}
+            moodTone={item.mood_tone}
             likes={item.reactions?.[0]?.count || 0}
             comments={item.replies?.[0]?.count || 0}
             timestamp={new Date(item.created_at)}

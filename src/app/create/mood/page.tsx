@@ -14,7 +14,17 @@ export default function CreateMoodPage() {
   const [scope, setScope] = useState<"public" | "community" | "circle" | "private">("public");
   const [tags, setTags] = useState<string[]>([]);
   const [currentTag, setCurrentTag] = useState("");
+  const [moodTone, setMoodTone] = useState("neutral");
   const [loading, setLoading] = useState(false);
+
+  const moods = [
+    { id: "happy", label: "Šťastně", emoji: "😊", color: "bg-yellow-100 border-yellow-200" },
+    { id: "excited", label: "Nadšeně", emoji: "🤩", color: "bg-orange-100 border-orange-200" },
+    { id: "neutral", label: "Neutrálně", emoji: "😐", color: "bg-gray-100 border-gray-200" },
+    { id: "sad", label: "Smutně", emoji: "😢", color: "bg-blue-100 border-blue-200" },
+    { id: "anxious", label: "Úzkostně", emoji: "😰", color: "bg-purple-100 border-purple-200" },
+    { id: "angry", label: "Naštvaně", emoji: "😠", color: "bg-red-100 border-red-200" },
+  ];
 
   function handleAddTag(e: React.KeyboardEvent) {
     if (e.key === "Enter" && currentTag.trim()) {
@@ -45,7 +55,7 @@ export default function CreateMoodPage() {
         reflection,
         scope,
         tags,
-        mood_tone: "neutral",
+        mood_tone: moodTone,
         is_anonymous: true,
       });
 
@@ -69,6 +79,27 @@ export default function CreateMoodPage() {
       </header>
 
       <form onSubmit={handleSubmit} className="p-4 space-y-6 max-w-lg mx-auto">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-text-secondary">Jaká je tvá nálada?</label>
+          <div className="grid grid-cols-3 gap-2">
+            {moods.map((m) => (
+              <button
+                key={m.id}
+                type="button"
+                onClick={() => setMoodTone(m.id)}
+                className={`p-3 rounded-xl border flex flex-col items-center gap-1 transition-all ${
+                  moodTone === m.id
+                    ? `${m.color} border-2 shadow-sm scale-105`
+                    : "bg-surface border-border hover:bg-surfaceAlt"
+                }`}
+              >
+                <span className="text-2xl">{m.emoji}</span>
+                <span className="text-xs font-medium text-text-secondary">{m.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="space-y-2">
           <label className="text-sm font-medium text-text-secondary">Nadpis</label>
           <input

@@ -142,6 +142,7 @@ export default function PostDetailPage() {
           title={entry.headline}
           body={entry.reflection}
           tags={entry.tags || []}
+          moodTone={entry.mood_tone}
           likes={likesCount}
           comments={replies.length}
           timestamp={new Date(entry.created_at)}
