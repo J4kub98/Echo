@@ -19,6 +19,7 @@ export interface MoodEntry {
   scope: "public" | "community" | "circle" | "private";
   tags: string[];
   mood_tone: string;
+  image_url?: string | null;
   is_anonymous: boolean;
   created_at: string;
 }

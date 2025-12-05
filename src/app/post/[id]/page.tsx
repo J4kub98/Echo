@@ -149,6 +149,7 @@ export default function PostDetailPage() {
           scope={entry.scope}
           title={entry.headline}
           body={entry.reflection}
+          imageUrl={entry.image_url}
           tags={entry.tags || []}
           moodTone={entry.mood_tone}
           likes={likesCount}

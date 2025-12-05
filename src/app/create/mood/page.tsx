@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, X } from "lucide-react";
+import { ArrowLeft, X, Image as ImageIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
@@ -10,6 +10,7 @@ import { useAuth } from "@/lib/auth-context";
 export default function CreateMoodPage() {
   const router = useRouter();
   const { user } = useAuth();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [headline, setHeadline] = useState("");
   const [reflection, setReflection] = useState("");
   const [scope, setScope] = useState<"public" | "community" | "circle" | "private">("public");
@@ -17,6 +18,8 @@ export default function CreateMoodPage() {
   const [currentTag, setCurrentTag] = useState("");
   const [moodTone, setMoodTone] = useState("neutral");
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const moods = [
     { id: "happy", label: "Šťastně", emoji: "😊", color: "bg-yellow-100 border-yellow-200" },
@@ -41,6 +44,18 @@ export default function CreateMoodPage() {
     setTags(tags.filter((tag) => tag !== tagToRemove));
   }
 
+  function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Obrázek je příliš velký (max 5MB)");
+        return;
+      }
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) {
@@ -50,6 +65,25 @@ export default function CreateMoodPage() {
     setLoading(true);
 
     try {
+      let imageUrl = null;
+
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('mood-images')
+          .upload(fileName, imageFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('mood-images')
+          .getPublicUrl(fileName);
+          
+        imageUrl = publicUrl;
+      }
+
       const { error } = await supabase.from("mood_entries").insert({
         author_id: user.id,
         headline,
@@ -57,6 +91,7 @@ export default function CreateMoodPage() {
         scope,
         tags,
         mood_tone: moodTone,
+        image_url: imageUrl,
         is_anonymous: true,
       });
 
@@ -126,6 +161,43 @@ export default function CreateMoodPage() {
         </div>
 
         <div className="space-y-2">
+          <label className="text-sm font-medium text-text-secondary">Fotografie (volitelné)</label>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageSelect}
+            accept="image/*"
+            className="hidden"
+          />
+          
+          {imagePreview ? (
+            <div className="relative rounded-xl overflow-hidden border border-border">
+              <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover" />
+              <button
+                type="button"
+                onClick={() => {
+                  setImageFile(null);
+                  setImagePreview(null);
+                  if (fileInputRef.current) fileInputRef.current.value = "";
+                }}
+                className="absolute top-2 right-2 p-1 bg-black/50 text-white rounded-full hover:bg-black/70"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full p-4 rounded-xl border-2 border-dashed border-border flex items-center justify-center gap-2 text-text-secondary hover:bg-surfaceAlt transition-colors"
+            >
+              <ImageIcon className="w-5 h-5" />
+              <span>Přidat fotku</span>
+            </button>
+          )}
+        </div>
+
+        <div className="space-y-2">
           <label className="text-sm font-medium text-text-secondary">Štítky</label>
           <div className="flex flex-wrap gap-2 mb-2">
             {tags.map((tag) => (
@@ -170,8 +242,9 @@ export default function CreateMoodPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-4 bg-primary text-white rounded-button font-bold shadow-button hover:bg-primaryHover active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full py-4 bg-primary text-white rounded-button font-bold shadow-button hover:bg-primaryHover active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
+          {loading && <Loader2 className="w-5 h-5 animate-spin" />}
           {loading ? "Odesílání..." : "Sdílet náladu"}
         </button>
       </form>

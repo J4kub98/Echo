@@ -11,6 +11,7 @@ interface MoodCardProps {
   scope: "public" | "community" | "circle" | "private";
   title: string;
   body: string;
+  imageUrl?: string | null;
   tags: string[];
   moodTone?: string;
   likes: number;
@@ -43,6 +44,7 @@ export function MoodCard({
   scope,
   title,
   body,
+  imageUrl,
   tags,
   moodTone = "neutral",
   likes,
@@ -99,6 +101,11 @@ export function MoodCard({
         <p className="text-sm leading-relaxed text-text-secondary line-clamp-4">
           {body}
         </p>
+        {imageUrl && (
+          <div className="mt-3 rounded-lg overflow-hidden">
+            <img src={imageUrl} alt="Mood attachment" className="w-full h-48 object-cover" />
+          </div>
+        )}
       </div>
 
       {/* Tags */}

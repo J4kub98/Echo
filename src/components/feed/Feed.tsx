@@ -159,6 +159,7 @@ export function Feed() {
             scope={item.scope}
             title={item.headline}
             body={item.reflection}
+            imageUrl={item.image_url}
             tags={item.tags || []}
             moodTone={item.mood_tone}
             likes={item.reactions?.[0]?.count || 0}
