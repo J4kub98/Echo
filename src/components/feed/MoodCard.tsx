@@ -1,8 +1,11 @@
-import { User, Heart, MessageCircle } from "lucide-react";
+import { User, Heart, MessageCircle, Flag } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { cs } from "date-fns/locale";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/auth-context";
 
 interface MoodCardProps {
   id?: string;
@@ -67,13 +70,53 @@ export function MoodCard({
     onLike?.();
   };
 
+  const { user } = useAuth();
+
+  const handleReport = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!user || !id) {
+      toast.error("Pro nahlášení musíš být přihlášen.");
+      return;
+    }
+
+    const reason = prompt("Důvod nahlášení (např. spam, urážlivé):");
+    if (!reason) return;
+
+    try {
+      const { error } = await supabase.from("reports").insert({
+        entry_id: id,
+        reporter_id: user.id,
+        reason: reason,
+      });
+
+      if (error) throw error;
+      toast.success("Příspěvek byl nahlášen ke kontrole.");
+    } catch (error) {
+      console.error("Error reporting:", error);
+      toast.error("Nepodařilo se nahlásit příspěvek.");
+    }
+  };
+
   const CardContent = (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-surface rounded-card p-4 shadow-card hover:shadow-md transition-shadow cursor-pointer"
+      className="bg-surface rounded-card p-4 shadow-card hover:shadow-md transition-shadow cursor-pointer relative group"
     >
+      {/* Report Button (Visible on hover or always on mobile if needed, keeping it subtle) */}
+      {id && (
+        <button
+          onClick={handleReport}
+          className="absolute top-4 right-4 p-1 text-text-tertiary hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+          title="Nahlásit příspěvek"
+        >
+          <Flag className="w-4 h-4" />
+        </button>
+      )}
+
       {/* Header */}
       <div className="flex items-center gap-3 mb-3">
         <div className="w-10 h-10 rounded-full bg-surfaceAlt flex items-center justify-center overflow-hidden">

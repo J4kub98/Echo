@@ -20,6 +20,7 @@ create table public.mood_entries (
   scope text check (scope in ('public', 'community', 'circle', 'private')) not null default 'public',
   mood_tone text default 'neutral',
   tags text[] default '{}',
+  image_url text, -- Added in Phase 3
   is_anonymous boolean default false,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -79,3 +80,16 @@ $$ language plpgsql security definer;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- STORAGE SETUP (Phase 3)
+insert into storage.buckets (id, name, public)
+values ('mood-images', 'mood-images', true)
+on conflict (id) do nothing;
+
+create policy "Public Access"
+  on storage.objects for select
+  using ( bucket_id = 'mood-images' );
+
+create policy "Authenticated users can upload images"
+  on storage.objects for insert
+  with check ( bucket_id = 'mood-images' and auth.role() = 'authenticated' );
