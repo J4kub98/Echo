@@ -134,10 +134,10 @@ export default function ProfilePage() {
                 placeholder="Tvé jméno"
                 autoFocus
               />
-              <button onClick={updateProfile} className="p-1.5 bg-green-100 text-green-600 rounded-full hover:bg-green-200">
+              <button onClick={updateProfile} className="p-1.5 bg-accent-green/10 text-accent-green rounded-full hover:bg-accent-green/20 transition-colors">
                 <Save className="w-4 h-4" />
               </button>
-              <button onClick={() => setIsEditing(false)} className="p-1.5 bg-red-100 text-red-600 rounded-full hover:bg-red-200">
+              <button onClick={() => setIsEditing(false)} className="p-1.5 bg-red-500/10 text-red-600 rounded-full hover:bg-red-500/20 transition-colors">
                 <X className="w-4 h-4" />
               </button>
             </div>

@@ -104,13 +104,13 @@ export function MoodCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="bg-surface rounded-card p-4 shadow-card hover:shadow-md transition-shadow cursor-pointer relative group"
+      className="bg-surface rounded-card p-5 shadow-card hover:shadow-cardHover border border-border/40 transition-all duration-300 cursor-pointer relative group"
     >
-      {/* Report Button (Visible on hover or always on mobile if needed, keeping it subtle) */}
+      {/* Report Button */}
       {id && (
         <button
           onClick={handleReport}
-          className="absolute top-4 right-4 p-1 text-text-tertiary hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute top-4 right-4 p-2 text-text-tertiary hover:text-red-500 hover:bg-red-50 rounded-full opacity-0 group-hover:opacity-100 transition-all"
           title="Nahlásit příspěvek"
         >
           <Flag className="w-4 h-4" />
@@ -118,8 +118,8 @@ export function MoodCard({
       )}
 
       {/* Header */}
-      <div className="flex items-center gap-3 mb-3">
-        <div className="w-10 h-10 rounded-full bg-surfaceAlt flex items-center justify-center overflow-hidden">
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-full bg-surfaceAlt flex items-center justify-center overflow-hidden ring-2 ring-surface">
           {avatarUrl ? (
             <img src={avatarUrl} alt={author} className="w-full h-full object-cover" />
           ) : (
@@ -127,37 +127,40 @@ export function MoodCard({
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-semibold text-text">{author}</p>
-          <div className="flex items-center gap-2 text-xs text-text-secondary">
-            <span className={scopeInfo.color}>• {scopeInfo.label}</span>
-            <span>{timeAgo}</span>
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-bold text-text">{author}</p>
+            <span className="text-xs text-text-tertiary">•</span>
+            <span className="text-xs text-text-tertiary">{timeAgo}</span>
           </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className={`font-medium ${scopeInfo.color}`}>{scopeInfo.label}</span>
+          </div>
+        </div>
+        <div className={`w-8 h-8 rounded-full flex items-center justify-center ${moodInfo.color} bg-opacity-10`}>
+           <span className="text-lg" role="img" aria-label={moodTone}>{moodInfo.emoji}</span>
         </div>
       </div>
 
       {/* Content */}
-      <div className="mb-3">
-        <div className="flex items-start gap-2 mb-2">
-          <span className="text-xl" role="img" aria-label={moodTone}>{moodInfo.emoji}</span>
-          <h3 className="text-base font-semibold text-text">{title}</h3>
-        </div>
-        <p className="text-sm leading-relaxed text-text-secondary line-clamp-4">
+      <div className="mb-4">
+        <h3 className="text-lg font-bold text-text mb-2 leading-tight">{title}</h3>
+        <p className="text-sm leading-relaxed text-text-secondary line-clamp-3">
           {body}
         </p>
         {imageUrl && (
-          <div className="mt-3 rounded-lg overflow-hidden">
-            <img src={imageUrl} alt="Mood attachment" className="w-full h-48 object-cover" />
+          <div className="mt-4 rounded-2xl overflow-hidden shadow-sm">
+            <img src={imageUrl} alt="Mood attachment" className="w-full h-56 object-cover hover:scale-105 transition-transform duration-500" />
           </div>
         )}
       </div>
 
       {/* Tags */}
       {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-3">
+        <div className="flex flex-wrap gap-2 mb-4">
           {tags.map((tag) => (
             <span
               key={tag}
-              className="text-xs text-primary bg-primary/10 px-2 py-1 rounded-full"
+              className="text-xs font-medium text-text-secondary bg-surfaceAlt px-2.5 py-1 rounded-full hover:bg-gray-200 transition-colors"
             >
               #{tag}
             </span>
@@ -166,21 +169,24 @@ export function MoodCard({
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-4 text-text-tertiary">
+      <div className="flex items-center gap-6 pt-4 border-t border-border/40">
         <button 
           onClick={handleLikeClick}
-          className={`flex items-center gap-1.5 text-sm transition-colors touch-manipulation ${isLiked ? "text-primary" : "hover:text-primary"}`}
+          className={`flex items-center gap-2 text-sm font-medium transition-colors touch-manipulation group/like ${isLiked ? "text-primary" : "text-text-tertiary hover:text-primary"}`}
         >
           <motion.div
             whileTap={{ scale: 0.8 }}
             animate={isLiked ? { scale: [1, 1.2, 1] } : {}}
+            className={`p-1.5 rounded-full group-hover/like:bg-primary/10 transition-colors`}
           >
-            <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
+            <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
           </motion.div>
           {likes > 0 && <span>{likes}</span>}
         </button>
-        <button className="flex items-center gap-1.5 text-sm hover:text-primary transition-colors touch-manipulation">
-          <MessageCircle className="w-4 h-4" />
+        <button className="flex items-center gap-2 text-sm font-medium text-text-tertiary hover:text-accent-blue transition-colors touch-manipulation group/comment">
+          <div className="p-1.5 rounded-full group-hover/comment:bg-accent-blue/10 transition-colors">
+            <MessageCircle className="w-5 h-5" />
+          </div>
           {comments > 0 && <span>{comments}</span>}
         </button>
       </div>

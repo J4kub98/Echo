@@ -9,34 +9,41 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Warm, inviting Echo palette from screenshot
-        background: "#F5E6D3", // warm peach/beige
+        // Modern Professional Palette
+        background: "#FAFAFA", // Clean off-white
         surface: "#FFFFFF",
-        surfaceAlt: "#FFF8F0",
-        primary: "#FF6B4A", // coral accent
-        primaryHover: "#FF8566",
+        surfaceAlt: "#F3F4F6", // Cool gray for secondary surfaces
+        primary: "#FF6B4A", // Coral accent (Keep identity)
+        primaryHover: "#FF542E",
         text: {
-          DEFAULT: "#2C2420",
-          secondary: "#6B5D52",
-          tertiary: "#9B8A7A",
+          DEFAULT: "#111827", // Gray-900
+          secondary: "#4B5563", // Gray-600
+          tertiary: "#9CA3AF", // Gray-400
         },
         accent: {
-          blue: "#4A9EFF",
-          orange: "#FF9147",
-          purple: "#B47AFF",
+          blue: "#3B82F6",
+          orange: "#F97316",
+          purple: "#8B5CF6",
+          green: "#10B981",
         },
-        border: "#E8D8C8",
+        border: "#E5E7EB", // Gray-200
+        divider: "#F3F4F6",
       },
       fontFamily: {
         sans: ["var(--font-manrope)", "system-ui", "sans-serif"],
       },
       borderRadius: {
-        card: "20px",
-        button: "50px",
+        card: "24px", // Slightly more rounded
+        button: "9999px", // Full pill
+        input: "16px",
       },
       boxShadow: {
-        card: "0 2px 8px rgba(44, 36, 32, 0.06)",
-        button: "0 4px 12px rgba(255, 107, 74, 0.25)",
+        // Soft, layered shadows for depth
+        sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+        card: "0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)",
+        cardHover: "0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)",
+        button: "0 4px 14px 0 rgba(255, 107, 74, 0.3)",
+        nav: "0 -4px 20px rgba(0,0,0,0.03)",
       },
     },
   },

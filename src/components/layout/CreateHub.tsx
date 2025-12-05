@@ -72,7 +72,7 @@ export function CreateHub({ onClose }: CreateHubProps) {
                 whileTap={{ scale: 0.98 }}
                 className="w-full p-4 bg-surface rounded-card shadow-card flex items-start gap-4 text-left hover:bg-surfaceAlt transition-colors"
               >
-                <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                   <Icon className="w-6 h-6 text-primary" />
                 </div>
                 <div>

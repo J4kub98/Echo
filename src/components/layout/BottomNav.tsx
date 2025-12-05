@@ -20,7 +20,7 @@ export function BottomNav({ onCreateClick }: BottomNavProps) {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-surface border-t border-border safe-bottom z-50">
+    <nav className="fixed bottom-0 left-0 right-0 bg-surface/80 backdrop-blur-lg border-t border-border/50 safe-bottom z-50 shadow-nav">
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -30,7 +30,7 @@ export function BottomNav({ onCreateClick }: BottomNavProps) {
               <button
                 key={item.id}
                 onClick={onCreateClick}
-                className="w-14 h-14 -mt-6 bg-primary text-white rounded-full flex items-center justify-center shadow-button hover:bg-primaryHover transition-all active:scale-95 touch-manipulation"
+                className="w-14 h-14 -mt-8 bg-primary text-white rounded-full flex items-center justify-center shadow-button hover:bg-primaryHover hover:scale-105 transition-all active:scale-95 touch-manipulation ring-4 ring-surface"
                 aria-label={item.label}
               >
                 <Icon className="w-6 h-6" />
@@ -44,12 +44,14 @@ export function BottomNav({ onCreateClick }: BottomNavProps) {
             <button
               key={item.id}
               onClick={() => router.push(item.href!)}
-              className={`flex flex-col items-center justify-center gap-1 px-3 py-2 touch-manipulation transition-colors ${
-                isActive ? "text-primary" : "text-text-tertiary"
+              className={`flex flex-col items-center justify-center gap-1 px-3 py-2 touch-manipulation transition-all duration-200 ${
+                isActive 
+                  ? "text-primary scale-105 font-medium" 
+                  : "text-text-tertiary hover:text-text-secondary"
               }`}
               aria-label={item.label}
             >
-              <Icon className="w-6 h-6" />
+              <Icon className={`w-6 h-6 ${isActive ? "stroke-[2.5px]" : "stroke-2"}`} />
             </button>
           );
         })}

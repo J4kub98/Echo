@@ -32,7 +32,7 @@ export default function LoginPage() {
           <button
             onClick={handleAnonymousLogin}
             disabled={isSigningIn}
-            className="w-full py-4 bg-surface text-text font-semibold rounded-button shadow-card hover:bg-surfaceAlt transition-all active:scale-95 border border-border"
+            className="w-full py-4 bg-primary text-white font-bold rounded-button shadow-button hover:bg-primaryHover transition-all active:scale-95"
           >
             {isSigningIn ? "Přihlašování..." : "Pokračovat anonymně"}
           </button>

@@ -22,12 +22,12 @@ export default function CreateMoodPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const moods = [
-    { id: "happy", label: "Šťastně", emoji: "😊", color: "bg-yellow-100 border-yellow-200" },
-    { id: "excited", label: "Nadšeně", emoji: "🤩", color: "bg-orange-100 border-orange-200" },
-    { id: "neutral", label: "Neutrálně", emoji: "😐", color: "bg-gray-100 border-gray-200" },
-    { id: "sad", label: "Smutně", emoji: "😢", color: "bg-blue-100 border-blue-200" },
-    { id: "anxious", label: "Úzkostně", emoji: "😰", color: "bg-purple-100 border-purple-200" },
-    { id: "angry", label: "Naštvaně", emoji: "😠", color: "bg-red-100 border-red-200" },
+    { id: "happy", label: "Šťastně", emoji: "😊", color: "bg-yellow-500/10 border-yellow-500 text-yellow-700" },
+    { id: "excited", label: "Nadšeně", emoji: "🤩", color: "bg-accent-orange/10 border-accent-orange text-accent-orange" },
+    { id: "neutral", label: "Neutrálně", emoji: "😐", color: "bg-gray-500/10 border-gray-500 text-gray-700" },
+    { id: "sad", label: "Smutně", emoji: "😢", color: "bg-accent-blue/10 border-accent-blue text-accent-blue" },
+    { id: "anxious", label: "Úzkostně", emoji: "😰", color: "bg-accent-purple/10 border-accent-purple text-accent-purple" },
+    { id: "angry", label: "Naštvaně", emoji: "😠", color: "bg-red-500/10 border-red-500 text-red-700" },
   ];
 
   function handleAddTag(e: React.KeyboardEvent) {
