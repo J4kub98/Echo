@@ -9,25 +9,25 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Modern Professional Palette
-        background: "#FAFAFA", // Clean off-white
-        surface: "#FFFFFF",
-        surfaceAlt: "#F3F4F6", // Cool gray for secondary surfaces
-        primary: "#FF6B4A", // Coral accent (Keep identity)
-        primaryHover: "#FF542E",
+        // Warm & Comfy Palette (Themed via CSS Variables)
+        background: "rgb(var(--background) / <alpha-value>)",
+        surface: "rgb(var(--surface) / <alpha-value>)",
+        surfaceAlt: "rgb(var(--surface-alt) / <alpha-value>)",
+        primary: "rgb(var(--primary) / <alpha-value>)",
+        primaryHover: "rgb(var(--primary-hover) / <alpha-value>)",
         text: {
-          DEFAULT: "#111827", // Gray-900
-          secondary: "#4B5563", // Gray-600
-          tertiary: "#9CA3AF", // Gray-400
+          DEFAULT: "rgb(var(--text) / <alpha-value>)",
+          secondary: "rgb(var(--text-secondary) / <alpha-value>)",
+          tertiary: "rgb(var(--text-tertiary) / <alpha-value>)",
         },
         accent: {
-          blue: "#3B82F6",
-          orange: "#F97316",
-          purple: "#8B5CF6",
-          green: "#10B981",
+          blue: "#5B8DB8", // Muted Blue
+          orange: "#E08D55", // Muted Orange
+          purple: "#9D84B7", // Muted Purple
+          green: "#6DA386", // Sage Green
         },
-        border: "#E5E7EB", // Gray-200
-        divider: "#F3F4F6",
+        border: "rgb(var(--border) / <alpha-value>)",
+        divider: "rgb(var(--surface-alt) / <alpha-value>)",
       },
       fontFamily: {
         sans: ["var(--font-manrope)", "system-ui", "sans-serif"],
@@ -38,12 +38,12 @@ const config: Config = {
         input: "16px",
       },
       boxShadow: {
-        // Soft, layered shadows for depth
-        sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-        card: "0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)",
-        cardHover: "0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025)",
-        button: "0 4px 14px 0 rgba(255, 107, 74, 0.3)",
-        nav: "0 -4px 20px rgba(0,0,0,0.03)",
+        // Soft, warm shadows
+        sm: "0 1px 2px 0 rgba(60, 40, 30, 0.05)",
+        card: "0 4px 6px -1px rgba(60, 40, 30, 0.02), 0 2px 4px -1px rgba(60, 40, 30, 0.02)",
+        cardHover: "0 10px 15px -3px rgba(60, 40, 30, 0.05), 0 4px 6px -2px rgba(60, 40, 30, 0.025)",
+        button: "0 4px 14px 0 rgba(217, 119, 87, 0.3)", // Terracotta shadow
+        nav: "0 -4px 20px rgba(60, 40, 30, 0.03)",
       },
     },
   },

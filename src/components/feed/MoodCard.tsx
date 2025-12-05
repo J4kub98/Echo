@@ -32,12 +32,12 @@ const scopeConfig = {
 };
 
 const moodConfig: Record<string, { emoji: string; color: string }> = {
-  happy: { emoji: "😊", color: "bg-yellow-500" },
-  excited: { emoji: "🤩", color: "bg-orange-500" },
-  neutral: { emoji: "😐", color: "bg-gray-500" },
-  sad: { emoji: "😢", color: "bg-blue-500" },
-  anxious: { emoji: "😰", color: "bg-purple-500" },
-  angry: { emoji: "😠", color: "bg-red-500" },
+  happy: { emoji: "😊", color: "bg-yellow-400" },
+  excited: { emoji: "🤩", color: "bg-accent-orange" },
+  neutral: { emoji: "😐", color: "bg-text-tertiary" },
+  sad: { emoji: "😢", color: "bg-accent-blue" },
+  anxious: { emoji: "😰", color: "bg-accent-purple" },
+  angry: { emoji: "😠", color: "bg-red-400" },
 };
 
 export function MoodCard({
