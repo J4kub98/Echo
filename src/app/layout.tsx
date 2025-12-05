@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Manrope } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { ClientLayout } from "@/components/layout/ClientLayout";
@@ -12,13 +13,24 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "Echo",
-  description: "Share your mood, find your circle",
+  title: "Echo - Sdílej náladu, najdi pochopení",
+  description: "Bezpečný prostor pro sdílení tvých pocitů a nálad. Připoj se ke komunitě, která naslouchá.",
+  applicationName: "Echo",
+  authors: [{ name: "Echo Team" }],
+  keywords: ["mood", "journal", "mental health", "community", "sharing", "czech"],
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Echo",
+  },
+  openGraph: {
+    type: "website",
+    locale: "cs_CZ",
+    url: "https://echo-app.vercel.app",
+    title: "Echo - Sdílej náladu",
+    description: "Bezpečný prostor pro sdílení tvých pocitů a nálad.",
+    siteName: "Echo",
   },
 };
 
@@ -40,6 +52,7 @@ export default function RootLayout({
       <body className="font-sans antialiased bg-background text-text">
         <AuthProvider>
           <ClientLayout>{children}</ClientLayout>
+          <Analytics />
         </AuthProvider>
       </body>
     </html>
