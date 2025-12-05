@@ -92,11 +92,12 @@ export default function LoginPage() {
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-tertiary" />
                 <input
                   type="text"
-                  placeholder="Uživatelské jméno"
+                  placeholder="Uživatelské jméno (min. 3 znaky)"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="w-full pl-10 p-3 rounded-input bg-surfaceAlt border-transparent focus:bg-surface focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                   required
+                  minLength={3}
                 />
               </div>
             )}
