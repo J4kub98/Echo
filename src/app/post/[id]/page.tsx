@@ -15,13 +15,18 @@ interface Reply {
   body: string;
   created_at: string;
   author_id: string;
+  profiles: { username: string; avatar_url: string } | null;
+}
+
+interface MoodEntryWithProfile extends MoodEntry {
+  profiles: { username: string; avatar_url: string } | null;
 }
 
 export default function PostDetailPage() {
   const { id } = useParams();
   const router = useRouter();
   const { user } = useAuth();
-  const [entry, setEntry] = useState<MoodEntry | null>(null);
+  const [entry, setEntry] = useState<MoodEntryWithProfile | null>(null);
   const [replies, setReplies] = useState<Reply[]>([]);
   const [newReply, setNewReply] = useState("");
   const [loading, setLoading] = useState(true);
@@ -34,18 +39,18 @@ export default function PostDetailPage() {
 
   async function fetchPostData() {
     try {
-      // Fetch entry with reaction count
+      // Fetch entry with reaction count and profile
       const { data: entryData, error: entryError } = await supabase
         .from("mood_entries")
-        .select("*, reactions(count)")
+        .select("*, profiles(username, avatar_url), reactions(count)")
         .eq("id", id)
         .single();
 
       if (entryError) throw entryError;
-      setEntry(entryData);
+      setEntry(entryData as MoodEntryWithProfile);
       
       // Safe cast or check for the count
-      const reactions = entryData.reactions as unknown as { count: number }[];
+      const reactions = (entryData as any).reactions as { count: number }[];
       setLikesCount(reactions?.[0]?.count || 0);
 
       // Check if user liked
@@ -60,15 +65,15 @@ export default function PostDetailPage() {
         setIsLiked(!!userReaction);
       }
 
-      // Fetch replies
+      // Fetch replies with profiles
       const { data: repliesData, error: repliesError } = await supabase
         .from("replies")
-        .select("*")
+        .select("*, profiles(username, avatar_url)")
         .eq("entry_id", id)
         .order("created_at", { ascending: true });
 
       if (repliesError) throw repliesError;
-      setReplies(repliesData || []);
+      setReplies(repliesData as Reply[] || []);
     } catch (error) {
       console.error("Error fetching post:", error);
     } finally {
@@ -139,7 +144,8 @@ export default function PostDetailPage() {
 
       <div className="p-4 max-w-lg mx-auto space-y-6">
         <MoodCard
-          author="Anonymní"
+          author={entry.profiles?.username || "Anonymní"}
+          avatarUrl={entry.profiles?.avatar_url || (entry.profiles?.username ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${entry.profiles.username}` : null)}
           scope={entry.scope}
           title={entry.headline}
           body={entry.reflection}
@@ -160,6 +166,16 @@ export default function PostDetailPage() {
           ) : (
             replies.map((reply) => (
               <div key={reply.id} className="bg-surface rounded-card p-4 shadow-sm">
+                <div className="flex items-center gap-2 mb-2">
+                   <div className="w-6 h-6 rounded-full bg-surfaceAlt overflow-hidden">
+                      <img 
+                        src={reply.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${reply.profiles?.username || 'anon'}`} 
+                        alt="Avatar"
+                        className="w-full h-full object-cover" 
+                      />
+                   </div>
+                   <span className="text-xs font-bold text-text">{reply.profiles?.username || "Anonymní"}</span>
+                </div>
                 <p className="text-sm text-text mb-2">{reply.body}</p>
                 <p className="text-xs text-text-tertiary">
                   {formatDistanceToNow(new Date(reply.created_at), {

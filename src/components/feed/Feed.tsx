@@ -15,6 +15,7 @@ const dailyQuote = {
 };
 
 interface MoodEntryWithStats extends MoodEntry {
+  profiles: { username: string; avatar_url: string } | null;
   reactions: { count: number }[];
   replies: { count: number }[];
   user_has_liked?: boolean;
@@ -37,6 +38,7 @@ export function Feed() {
         .from("mood_entries")
         .select(`
           *,
+          profiles (username, avatar_url),
           reactions (count),
           replies (count)
         `)
@@ -152,7 +154,8 @@ export function Feed() {
           <MoodCard
             key={item.id}
             id={item.id}
-            author="Anonymní"
+            author={item.profiles?.username || "Anonymní"}
+            avatarUrl={item.profiles?.avatar_url || (item.profiles?.username ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${item.profiles.username}` : null)}
             scope={item.scope}
             title={item.headline}
             body={item.reflection}

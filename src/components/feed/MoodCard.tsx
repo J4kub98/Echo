@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 interface MoodCardProps {
   id?: string;
   author: string;
+  avatarUrl?: string | null;
   scope: "public" | "community" | "circle" | "private";
   title: string;
   body: string;
@@ -38,6 +39,7 @@ const moodConfig: Record<string, { emoji: string; color: string }> = {
 export function MoodCard({
   id,
   author,
+  avatarUrl,
   scope,
   title,
   body,
@@ -72,8 +74,12 @@ export function MoodCard({
     >
       {/* Header */}
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-10 h-10 rounded-full bg-surfaceAlt flex items-center justify-center">
-          <User className="w-5 h-5 text-text-secondary" />
+        <div className="w-10 h-10 rounded-full bg-surfaceAlt flex items-center justify-center overflow-hidden">
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={author} className="w-full h-full object-cover" />
+          ) : (
+            <User className="w-5 h-5 text-text-secondary" />
+          )}
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-text">{author}</p>
