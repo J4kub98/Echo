@@ -8,6 +8,8 @@ interface AuthContextType {
   session: Session | null;
   user: User | null;
   signInAnonymously: () => Promise<void>;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
+  signUpWithEmail: (email: string, password: string, username: string) => Promise<void>;
   signOut: () => Promise<void>;
   loading: boolean;
 }
@@ -16,6 +18,8 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   signInAnonymously: async () => {},
+  signInWithEmail: async () => {},
+  signUpWithEmail: async () => {},
   signOut: async () => {},
   loading: true,
 });
@@ -51,8 +55,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
     } catch (error) {
       console.error("Error signing in anonymously:", error);
-      alert("Chyba při přihlášení.");
+      throw error;
     }
+  };
+
+  const signInWithEmail = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    if (error) throw error;
+  };
+
+  const signUpWithEmail = async (email: string, password: string, username: string) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          username,
+        },
+      },
+    });
+    if (error) throw error;
   };
 
   const signOut = async () => {
@@ -61,7 +86,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ session, user, signInAnonymously, signOut, loading }}
+      value={{ session, user, signInAnonymously, signInWithEmail, signUpWithEmail, signOut, loading }}
     >
       {children}
     </AuthContext.Provider>
