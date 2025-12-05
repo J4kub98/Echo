@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, X } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 
@@ -43,7 +44,7 @@ export default function CreateMoodPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) {
-      alert("Musíš být přihlášen!");
+      toast.error("Musíš být přihlášen!");
       return;
     }
     setLoading(true);
@@ -60,10 +61,11 @@ export default function CreateMoodPage() {
       });
 
       if (error) throw error;
+      toast.success("Příspěvek byl úspěšně vytvořen!");
       router.push("/");
     } catch (error) {
       console.error("Error creating post:", error);
-      alert("Nepodařilo se vytvořit příspěvek.");
+      toast.error("Nepodařilo se vytvořit příspěvek.");
     } finally {
       setLoading(false);
     }

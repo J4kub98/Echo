@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Heart, MessageCircle, Send } from "lucide-react";
+import { toast } from "sonner";
 import { supabase, type MoodEntry } from "@/lib/supabase";
 import { MoodCard } from "@/components/feed/MoodCard";
 import { useAuth } from "@/lib/auth-context";
@@ -116,10 +117,11 @@ export default function PostDetailPage() {
 
       if (error) throw error;
       setNewReply("");
+      toast.success("Odpověď odeslána");
       fetchPostData(); // Refresh replies
     } catch (error) {
       console.error("Error sending reply:", error);
-      alert("Nepodařilo se odeslat odpověď.");
+      toast.error("Nepodařilo se odeslat odpověď.");
     }
   }
 

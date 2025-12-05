@@ -2,6 +2,7 @@ import { User, Heart, MessageCircle } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { cs } from "date-fns/locale";
 import Link from "next/link";
+import { motion } from "framer-motion";
 
 interface MoodCardProps {
   id?: string;
@@ -63,7 +64,12 @@ export function MoodCard({
   };
 
   const CardContent = (
-    <div className="bg-surface rounded-card p-4 shadow-card hover:shadow-md transition-shadow cursor-pointer">
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="bg-surface rounded-card p-4 shadow-card hover:shadow-md transition-shadow cursor-pointer"
+    >
       {/* Header */}
       <div className="flex items-center gap-3 mb-3">
         <div className="w-10 h-10 rounded-full bg-surfaceAlt flex items-center justify-center">
@@ -109,7 +115,12 @@ export function MoodCard({
           onClick={handleLikeClick}
           className={`flex items-center gap-1.5 text-sm transition-colors touch-manipulation ${isLiked ? "text-primary" : "hover:text-primary"}`}
         >
-          <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
+          <motion.div
+            whileTap={{ scale: 0.8 }}
+            animate={isLiked ? { scale: [1, 1.2, 1] } : {}}
+          >
+            <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
+          </motion.div>
           {likes > 0 && <span>{likes}</span>}
         </button>
         <button className="flex items-center gap-1.5 text-sm hover:text-primary transition-colors touch-manipulation">
@@ -117,7 +128,7 @@ export function MoodCard({
           {comments > 0 && <span>{comments}</span>}
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 
   if (id) {
