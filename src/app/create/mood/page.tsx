@@ -2,8 +2,9 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, X, Image as ImageIcon, Loader2 } from "lucide-react";
+import { ArrowLeft, X, Image as ImageIcon, Loader2, Hash, Globe, Lock, Users, UserCheck } from "lucide-react";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth-context";
 
@@ -22,13 +23,20 @@ export default function CreateMoodPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const moods = [
-    { id: "happy", label: "Šťastně", emoji: "😊", color: "bg-yellow-400/10 border-yellow-400 text-yellow-700" },
-    { id: "excited", label: "Nadšeně", emoji: "🤩", color: "bg-accent-orange/10 border-accent-orange text-accent-orange" },
-    { id: "neutral", label: "Neutrálně", emoji: "😐", color: "bg-text-tertiary/10 border-text-tertiary text-text-secondary" },
-    { id: "sad", label: "Smutně", emoji: "😢", color: "bg-accent-blue/10 border-accent-blue text-accent-blue" },
-    { id: "anxious", label: "Úzkostně", emoji: "😰", color: "bg-accent-purple/10 border-accent-purple text-accent-purple" },
-    { id: "angry", label: "Naštvaně", emoji: "😠", color: "bg-red-400/10 border-red-400 text-red-700" },
+    { id: "happy", label: "Šťastně", emoji: "😊", color: "bg-yellow-400", shadow: "shadow-yellow-400/20" },
+    { id: "excited", label: "Nadšeně", emoji: "🤩", color: "bg-accent-orange", shadow: "shadow-accent-orange/20" },
+    { id: "neutral", label: "Neutrálně", emoji: "😐", color: "bg-text-tertiary", shadow: "shadow-gray-400/20" },
+    { id: "sad", label: "Smutně", emoji: "😢", color: "bg-accent-blue", shadow: "shadow-accent-blue/20" },
+    { id: "anxious", label: "Úzkostně", emoji: "😰", color: "bg-accent-purple", shadow: "shadow-accent-purple/20" },
+    { id: "angry", label: "Naštvaně", emoji: "😠", color: "bg-red-400", shadow: "shadow-red-400/20" },
   ];
+
+  const scopes = [
+    { id: "public", label: "Veřejně", icon: Globe },
+    { id: "community", label: "Komunita", icon: Users },
+    { id: "circle", label: "Můj kruh", icon: UserCheck },
+    { id: "private", label: "Soukromě", icon: Lock },
+  ] as const;
 
   function handleAddTag(e: React.KeyboardEvent) {
     if (e.key === "Enter" && currentTag.trim()) {
@@ -107,146 +115,177 @@ export default function CreateMoodPage() {
   }
 
   return (
-    <main className="min-h-screen bg-background safe-bottom">
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3 flex items-center gap-4 safe-top">
-        <button onClick={() => router.back()} className="p-2 -ml-2">
+    <main className="min-h-screen bg-background pb-24">
+      <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-md border-b border-border/50 px-4 py-4 flex items-center justify-between max-w-2xl mx-auto w-full">
+        <button 
+          onClick={() => router.back()} 
+          className="p-2 -ml-2 hover:bg-surfaceAlt rounded-full transition-colors"
+        >
           <ArrowLeft className="w-6 h-6 text-text" />
         </button>
-        <h1 className="text-lg font-bold text-text">Jak se cítíš?</h1>
+        <h1 className="text-lg font-bold text-text font-serif">Nový záznam</h1>
+        <div className="w-10" /> {/* Spacer for centering */}
       </header>
 
-      <form onSubmit={handleSubmit} className="p-4 space-y-6 max-w-lg mx-auto">
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text-secondary">Jaká je tvá nálada?</label>
-          <div className="grid grid-cols-3 gap-2">
+      <form onSubmit={handleSubmit} className="p-4 space-y-8 max-w-2xl mx-auto mt-4">
+        {/* Mood Selection */}
+        <section className="space-y-3">
+          <label className="text-sm font-medium text-text-secondary uppercase tracking-wider ml-1">Jak se cítíš?</label>
+          <div className="flex gap-3 overflow-x-auto pb-4 pt-2 px-1 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-6">
             {moods.map((m) => (
-              <button
+              <motion.button
                 key={m.id}
                 type="button"
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setMoodTone(m.id)}
-                className={`p-3 rounded-xl border flex flex-col items-center gap-1 transition-all ${
+                className={`flex-shrink-0 w-20 h-24 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all duration-300 border ${
                   moodTone === m.id
-                    ? `${m.color} border-2 shadow-sm scale-105`
-                    : "bg-surface border-border hover:bg-surfaceAlt"
+                    ? `bg-surface border-transparent ${m.shadow} shadow-lg ring-2 ring-primary/20 scale-105`
+                    : "bg-surface/50 border-border hover:bg-surface hover:border-primary/30"
                 }`}
               >
-                <span className="text-2xl">{m.emoji}</span>
-                <span className="text-xs font-medium text-text-secondary">{m.label}</span>
-              </button>
+                <span className="text-3xl filter drop-shadow-sm">{m.emoji}</span>
+                <span className={`text-xs font-medium ${moodTone === m.id ? "text-text" : "text-text-secondary"}`}>
+                  {m.label}
+                </span>
+              </motion.button>
             ))}
           </div>
-        </div>
+        </section>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text-secondary">Nadpis</label>
-          <input
-            type="text"
-            value={headline}
-            onChange={(e) => setHeadline(e.target.value)}
-            placeholder="Krátce o tvé náladě..."
-            className="w-full p-3 rounded-xl bg-surface border border-border focus:outline-none focus:border-primary transition-colors"
-            required
-          />
-        </div>
+        {/* Content Input */}
+        <section className="space-y-6 bg-surface rounded-3xl p-6 shadow-sm border border-border/50">
+          <div className="space-y-2">
+            <input
+              type="text"
+              value={headline}
+              onChange={(e) => setHeadline(e.target.value)}
+              placeholder="Nadpis tvé myšlenky..."
+              className="w-full bg-transparent text-2xl font-bold text-text placeholder:text-text-tertiary focus:outline-none"
+              required
+            />
+          </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text-secondary">Reflexe</label>
-          <textarea
-            value={reflection}
-            onChange={(e) => setReflection(e.target.value)}
-            placeholder="Rozepiš se o tom, co prožíváš..."
-            className="w-full p-3 rounded-xl bg-surface border border-border focus:outline-none focus:border-primary transition-colors min-h-[150px]"
-            required
-          />
-        </div>
+          <div className="space-y-2">
+            <textarea
+              value={reflection}
+              onChange={(e) => setReflection(e.target.value)}
+              placeholder="Rozepiš se o tom, co prožíváš..."
+              className="w-full bg-transparent text-lg text-text-secondary placeholder:text-text-tertiary focus:outline-none min-h-[200px] font-serif leading-relaxed resize-none"
+              required
+            />
+          </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text-secondary">Fotografie (volitelné)</label>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleImageSelect}
-            accept="image/*"
-            className="hidden"
-          />
-          
-          {imagePreview ? (
-            <div className="relative rounded-xl overflow-hidden border border-border">
-              <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover" />
-              <button
-                type="button"
-                onClick={() => {
-                  setImageFile(null);
-                  setImagePreview(null);
-                  if (fileInputRef.current) fileInputRef.current.value = "";
-                }}
-                className="absolute top-2 right-2 p-1 bg-black/50 text-white rounded-full hover:bg-black/70"
+          {/* Image Preview */}
+          <AnimatePresence>
+            {imagePreview && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="relative rounded-xl overflow-hidden"
               >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-          ) : (
+                <img src={imagePreview} alt="Preview" className="w-full h-auto max-h-96 object-cover rounded-xl" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImageFile(null);
+                    setImagePreview(null);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                  }}
+                  className="absolute top-3 right-3 p-2 bg-black/50 text-white rounded-full hover:bg-black/70 backdrop-blur-sm transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Toolbar */}
+          <div className="flex items-center gap-2 pt-4 border-t border-border/30">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className="w-full p-4 rounded-xl border-2 border-dashed border-border flex items-center justify-center gap-2 text-text-secondary hover:bg-surfaceAlt transition-colors"
+              className="p-2 text-text-secondary hover:text-primary hover:bg-primary/5 rounded-full transition-colors"
+              title="Přidat fotku"
             >
               <ImageIcon className="w-5 h-5" />
-              <span>Přidat fotku</span>
             </button>
-          )}
-        </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageSelect}
+              accept="image/*"
+              className="hidden"
+            />
+            
+            <div className="h-6 w-px bg-border/50 mx-2" />
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text-secondary">Štítky</label>
-          <div className="flex flex-wrap gap-2 mb-2">
-            {tags.map((tag) => (
-              <span key={tag} className="bg-primary/10 text-primary px-2 py-1 rounded-full text-sm flex items-center gap-1">
-                #{tag}
-                <button type="button" onClick={() => removeTag(tag)}>
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
-            ))}
+            <div className="flex-1 flex items-center gap-2">
+              <Hash className="w-4 h-4 text-text-tertiary" />
+              <input
+                type="text"
+                value={currentTag}
+                onChange={(e) => setCurrentTag(e.target.value)}
+                onKeyDown={handleAddTag}
+                placeholder="Přidej štítky..."
+                className="flex-1 bg-transparent text-sm text-text focus:outline-none"
+              />
+            </div>
           </div>
-          <input
-            type="text"
-            value={currentTag}
-            onChange={(e) => setCurrentTag(e.target.value)}
-            onKeyDown={handleAddTag}
-            placeholder="Přidej štítek a stiskni Enter..."
-            className="w-full p-3 rounded-xl bg-surface border border-border focus:outline-none focus:border-primary transition-colors"
-          />
-        </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-text-secondary">Kdo to uvidí?</label>
-          <div className="grid grid-cols-2 gap-2">
-            {(["public", "community", "circle", "private"] as const).map((s) => (
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <span key={tag} className="bg-surfaceAlt text-text-secondary px-3 py-1 rounded-full text-sm flex items-center gap-1 border border-border">
+                  #{tag}
+                  <button type="button" onClick={() => removeTag(tag)} className="hover:text-red-500">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Scope Selection */}
+        <section className="space-y-3">
+          <label className="text-sm font-medium text-text-secondary uppercase tracking-wider ml-1">Viditelnost</label>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {scopes.map((s) => (
               <button
-                key={s}
+                key={s.id}
                 type="button"
-                onClick={() => setScope(s)}
-                className={`p-3 rounded-xl border text-sm font-medium transition-all ${
-                  scope === s
+                onClick={() => setScope(s.id as any)}
+                className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all duration-200 ${
+                  scope === s.id
                     ? "bg-primary text-white border-primary shadow-button"
                     : "bg-surface text-text-secondary border-border hover:bg-surfaceAlt"
                 }`}
               >
-                {s.charAt(0).toUpperCase() + s.slice(1)}
+                <s.icon className="w-5 h-5" />
+                <span className="text-xs font-medium">{s.label}</span>
               </button>
             ))}
           </div>
-        </div>
+        </section>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full py-4 bg-primary text-white rounded-button font-bold shadow-button hover:bg-primaryHover active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          {loading && <Loader2 className="w-5 h-5 animate-spin" />}
-          {loading ? "Odesílání..." : "Sdílet náladu"}
-        </button>
+        <div className="pt-4">
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-4 bg-primary text-white rounded-full font-bold text-lg shadow-button hover:bg-primaryHover active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" />
+                <span>Odesílání...</span>
+              </>
+            ) : (
+              "Zveřejnit záznam"
+            )}
+          </button>
+        </div>
       </form>
     </main>
   );

@@ -44,14 +44,19 @@ export function BottomNav({ onCreateClick }: BottomNavProps) {
             <button
               key={item.id}
               onClick={() => router.push(item.href!)}
-              className={`flex flex-col items-center justify-center gap-1 px-3 py-2 touch-manipulation transition-all duration-200 ${
+              className={`relative flex flex-col items-center justify-center min-w-[44px] min-h-[44px] px-3 py-2 touch-manipulation transition-all duration-300 active:scale-95 ${
                 isActive 
-                  ? "text-primary scale-105 font-medium" 
-                  : "text-text-tertiary hover:text-text-secondary"
+                  ? "text-primary" 
+                  : "text-text-tertiary hover:text-text-secondary active:text-text"
               }`}
               aria-label={item.label}
             >
-              <Icon className={`w-6 h-6 ${isActive ? "stroke-[2.5px]" : "stroke-2"}`} />
+              <div className={`relative p-2 rounded-xl transition-all duration-300 ${isActive ? "bg-primary/10 -translate-y-1" : ""}`}>
+                <Icon className={`w-6 h-6 transition-all duration-300 ${isActive ? "stroke-[2.5px] scale-105" : "stroke-2"}`} />
+              </div>
+              {isActive && (
+                <span className="absolute bottom-1 w-1 h-1 bg-primary rounded-full animate-in fade-in zoom-in duration-300" />
+              )}
             </button>
           );
         })}

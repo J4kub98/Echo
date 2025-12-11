@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  :root, .light {
     /* Warm Light Mode (Default) */
     --background: 253 252 248; /* #FDFCF8 */
     --surface: 255 255 255;    /* #FFFFFF */
@@ -19,21 +19,34 @@
     --border: 230 226 222;     /* #E6E2DE */
   }
 
+  .dark {
+    /* Warm Dark Mode */
+    --background: 28 25 23;    /* #1C1917 (Warm Black) */
+    --surface: 41 37 36;       /* #292524 (Warm Dark Gray) */
+    --surface-alt: 68 64 60;   /* #44403C (Lighter Warm Gray) */
+    
+    --primary: 217 119 87;     /* #D97757 (Keep identity) */
+    --primary-hover: 224 141 85; /* #E08D55 (Lighter for dark mode hover) */
+    
+    --text: 231 229 228;       /* #E7E5E4 (Warm Off-White) */
+    --text-secondary: 168 162 158; /* #A8A29E (Warm Light Gray) */
+    --text-tertiary: 120 113 108; /* #78716C */
+    
+    --border: 68 64 60;        /* #44403C */
+  }
+
+  /* Fallback for system preference when no class is set */
   @media (prefers-color-scheme: dark) {
-    :root {
-      /* Warm Dark Mode */
-      --background: 28 25 23;    /* #1C1917 (Warm Black) */
-      --surface: 41 37 36;       /* #292524 (Warm Dark Gray) */
-      --surface-alt: 68 64 60;   /* #44403C (Lighter Warm Gray) */
-      
-      --primary: 217 119 87;     /* #D97757 (Keep identity) */
-      --primary-hover: 224 141 85; /* #E08D55 (Lighter for dark mode hover) */
-      
-      --text: 231 229 228;       /* #E7E5E4 (Warm Off-White) */
-      --text-secondary: 168 162 158; /* #A8A29E (Warm Light Gray) */
-      --text-tertiary: 120 113 108; /* #78716C */
-      
-      --border: 68 64 60;        /* #44403C */
+    :root:not(.light):not(.dark) {
+      --background: 28 25 23;
+      --surface: 41 37 36;
+      --surface-alt: 68 64 60;
+      --primary: 217 119 87;
+      --primary-hover: 224 141 85;
+      --text: 231 229 228;
+      --text-secondary: 168 162 158;
+      --text-tertiary: 120 113 108;
+      --border: 68 64 60;
     }
   }
 
@@ -48,6 +61,14 @@
 }
 
 @layer utilities {
+  .glass {
+    @apply bg-surface/80 backdrop-blur-md border border-white/20 shadow-glass;
+  }
+  
+  .glass-dark {
+    @apply bg-surface/60 backdrop-blur-md border border-white/5 shadow-glass;
+  }
+
   .safe-top {
     padding-top: env(safe-area-inset-top);
   }

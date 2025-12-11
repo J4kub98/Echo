@@ -1,7 +1,7 @@
 {
-  "name": "Echo",
+  "name": "Echo - Mood Journal",
   "short_name": "Echo",
-  "description": "Share your mood, find your circle",
+  "description": "Bezpečný prostor pro sdílení tvých pocitů a nálad.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F5E6D3",
@@ -9,10 +9,28 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

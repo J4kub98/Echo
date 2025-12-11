@@ -27,17 +27,16 @@ export interface Reaction {
   id: string;
   entry_id: string;
   user_id: string;
-  reaction: "like" | "quote";
-  text?: string;
+  type: "like" | "hug" | "support";
   created_at: string;
 }
 
 export interface Profile {
   id: string;
-  username: string;
-  avatar_url: string;
-  is_admin?: boolean;
-  updated_at: string;
+  username: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  updated_at: string | null;
 }
 
 export interface Report {
@@ -46,5 +45,19 @@ export interface Report {
   reporter_id: string;
   reason: string;
   status: "pending" | "resolved" | "dismissed";
+  created_at: string;
+}
+
+export interface Reply {
+  id: string;
+  entry_id: string;
+  author_id: string;
+  body: string;
+  created_at: string;
+}
+
+export interface Follow {
+  follower_id: string;
+  following_id: string;
   created_at: string;
 }

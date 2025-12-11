@@ -6,6 +6,7 @@ create table public.profiles (
   id uuid references auth.users on delete cascade not null primary key,
   username text unique,
   avatar_url text,
+  bio text,
   updated_at timestamp with time zone,
   
   constraint username_length check (char_length(username) >= 3)
@@ -93,3 +94,18 @@ create policy "Public Access"
 create policy "Authenticated users can upload images"
   on storage.objects for insert
   with check ( bucket_id = 'mood-images' and auth.role() = 'authenticated' );
+
+-- Reports table
+create table public.reports (
+  id uuid default uuid_generate_v4() primary key,
+  entry_id uuid references public.mood_entries(id) on delete cascade not null,
+  reporter_id uuid references public.profiles(id) on delete cascade not null,
+  reason text not null,
+  status text check (status in ('pending', 'resolved', 'dismissed')) default 'pending',
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.reports enable row level security;
+
+create policy "Users can create reports." on public.reports for insert with check (auth.uid() = reporter_id);
+create policy "Users can see their own reports." on public.reports for select using (auth.uid() = reporter_id);

@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Heart, MessageCircle, Send } from "lucide-react";
+import { ArrowLeft, Heart, MessageCircle, Send, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { supabase, type MoodEntry } from "@/lib/supabase";
 import { MoodCard } from "@/components/feed/MoodCard";
 import { useAuth } from "@/lib/auth-context";
 import { formatDistanceToNow } from "date-fns";
 import { cs } from "date-fns/locale";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 interface Reply {
   id: string;
@@ -81,6 +83,24 @@ export default function PostDetailPage() {
     }
   }
 
+  async function handleDelete() {
+    if (!entry) return;
+    try {
+      const { error } = await supabase
+        .from("mood_entries")
+        .delete()
+        .eq("id", entry.id);
+
+      if (error) throw error;
+
+      toast.success("Příspěvek byl smazán.");
+      router.push("/");
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      toast.error("Nepodařilo se smazat příspěvek.");
+    }
+  }
+
   async function handleLike() {
     if (!user || !entry) return;
 
@@ -130,85 +150,168 @@ export default function PostDetailPage() {
     }
   }
 
-  if (loading) return <div className="p-4 text-center">Načítání...</div>;
-  if (!entry) return <div className="p-4 text-center">Příspěvek nenalezen.</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!entry) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4 text-center">
+        <h2 className="text-xl font-serif font-bold text-text mb-2">Příspěvek nenalezen</h2>
+        <p className="text-text-secondary mb-6">Tento příspěvek možná již neexistuje.</p>
+        <button onClick={() => router.back()} className="text-primary hover:underline">
+          Zpět na přehled
+        </button>
+      </div>
+    );
+  }
 
   return (
-    <main className="min-h-screen bg-background pb-20 safe-bottom">
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b border-border px-4 py-3 flex items-center gap-4 safe-top">
-        <button onClick={() => router.back()} className="p-2 -ml-2">
+    <main className="min-h-screen bg-background pb-24 safe-bottom">
+      {/* Header */}
+      <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-xl border-b border-border/50 px-4 py-3 flex items-center gap-4 safe-top">
+        <button 
+          onClick={() => router.back()} 
+          className="p-2 -ml-2 rounded-full hover:bg-surface transition-colors"
+        >
           <ArrowLeft className="w-6 h-6 text-text" />
         </button>
-        <h1 className="text-lg font-bold text-text">Detail příspěvku</h1>
+        <h1 className="text-lg font-bold text-text font-serif">Detail myšlenky</h1>
       </header>
 
-      <div className="p-4 max-w-lg mx-auto space-y-6">
-        <MoodCard
-          author={entry.profiles?.username || "Anonymní"}
-          avatarUrl={entry.profiles?.avatar_url || (entry.profiles?.username ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${entry.profiles.username}` : null)}
-          scope={entry.scope}
-          title={entry.headline}
-          body={entry.reflection}
-          imageUrl={entry.image_url}
-          tags={entry.tags || []}
-          moodTone={entry.mood_tone}
-          likes={likesCount}
-          comments={replies.length}
-          timestamp={new Date(entry.created_at)}
-          isLiked={isLiked}
-          onLike={handleLike}
-        />
+      <div className="p-4 max-w-2xl mx-auto space-y-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <MoodCard
+            author={entry.profiles?.username || "Anonymní"}
+            authorId={entry.author_id}
+            avatarUrl={entry.profiles?.avatar_url || (entry.profiles?.username ? `https://api.dicebear.com/7.x/avataaars/svg?seed=${entry.profiles.username}` : null)}
+            scope={entry.scope}
+            title={entry.headline}
+            body={entry.reflection}
+            imageUrl={entry.image_url}
+            tags={entry.tags || []}
+            moodTone={entry.mood_tone}
+            likes={likesCount}
+            comments={replies.length}
+            timestamp={new Date(entry.created_at)}
+            isLiked={isLiked}
+            onLike={handleLike}
+            onDelete={handleDelete}
+          />
+        </motion.div>
 
-        <div className="space-y-4">
-          <h3 className="font-bold text-text">Odpovědi ({replies.length})</h3>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between px-1">
+            <h3 className="font-bold text-text font-serif text-lg">Odpovědi ({replies.length})</h3>
+          </div>
           
-          {replies.length === 0 ? (
-            <p className="text-text-secondary text-sm">Zatím žádné odpovědi. Buď první!</p>
-          ) : (
-            replies.map((reply) => (
-              <div key={reply.id} className="bg-surface rounded-card p-4 shadow-sm">
-                <div className="flex items-center gap-2 mb-2">
-                   <div className="w-6 h-6 rounded-full bg-surfaceAlt overflow-hidden">
-                      <img 
-                        src={reply.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${reply.profiles?.username || 'anon'}`} 
-                        alt="Avatar"
-                        className="w-full h-full object-cover" 
-                      />
-                   </div>
-                   <span className="text-xs font-bold text-text">{reply.profiles?.username || "Anonymní"}</span>
-                </div>
-                <p className="text-sm text-text mb-2">{reply.body}</p>
-                <p className="text-xs text-text-tertiary">
-                  {formatDistanceToNow(new Date(reply.created_at), {
-                    addSuffix: true,
-                    locale: cs,
-                  })}
-                </p>
-              </div>
-            ))
-          )}
+          <div className="space-y-4">
+            <AnimatePresence mode="popLayout">
+              {replies.length === 0 ? (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-center py-12 bg-surface/30 rounded-3xl border border-dashed border-border"
+                >
+                  <MessageCircle className="w-8 h-8 text-text-tertiary mx-auto mb-3 opacity-50" />
+                  <p className="text-text-secondary font-medium">Zatím žádné odpovědi</p>
+                  <p className="text-text-tertiary text-sm mt-1">Buď první, kdo podpoří autora!</p>
+                </motion.div>
+              ) : (
+                replies.map((reply, index) => (
+                  <motion.div
+                    key={reply.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="bg-surface/50 backdrop-blur-sm rounded-2xl p-5 border border-border/50 shadow-sm"
+                  >
+                    <div className="flex items-start gap-3">
+                       <div className="w-8 h-8 rounded-full bg-surfaceAlt overflow-hidden flex-shrink-0 ring-2 ring-surface">
+                          <img 
+                            src={reply.profiles?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${reply.profiles?.username || 'anon'}`} 
+                            alt="Avatar"
+                            className="w-full h-full object-cover" 
+                          />
+                       </div>
+                       <div className="flex-1 min-w-0">
+                         <div className="flex items-center justify-between mb-1">
+                           <span className="text-sm font-bold text-text">{reply.profiles?.username || "Anonymní"}</span>
+                           <span className="text-xs text-text-tertiary">
+                             {formatDistanceToNow(new Date(reply.created_at), {
+                               addSuffix: true,
+                               locale: cs,
+                             })}
+                           </span>
+                         </div>
+                         <p className="text-sm text-text leading-relaxed">{reply.body}</p>
+                       </div>
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 
-      {/* Reply Input */}
-      <div className="fixed bottom-0 left-0 right-0 bg-surface border-t border-border p-4 safe-bottom">
-        <form onSubmit={handleSendReply} className="max-w-lg mx-auto flex gap-2">
-          <input
-            type="text"
-            value={newReply}
-            onChange={(e) => setNewReply(e.target.value)}
-            placeholder="Napiš podporující odpověď..."
-            className="flex-1 p-3 rounded-full bg-surfaceAlt border border-border focus:outline-none focus:border-primary transition-colors"
-          />
-          <button
-            type="submit"
-            disabled={!newReply.trim()}
-            className="p-3 bg-primary text-white rounded-full shadow-button disabled:opacity-50 disabled:shadow-none"
-          >
-            <Send className="w-5 h-5" />
-          </button>
-        </form>
+      {/* Reply Input or Guest CTA */}
+      <div className="fixed bottom-0 left-0 right-0 bg-surface/80 backdrop-blur-xl border-t border-border/50 p-4 safe-bottom z-20">
+        <div className="max-w-2xl mx-auto">
+          {user ? (
+            <form onSubmit={handleSendReply} className="flex gap-3 items-end">
+              <div className="relative flex-1">
+                <textarea
+                  value={newReply}
+                  onChange={(e) => setNewReply(e.target.value)}
+                  placeholder="Napiš podporující odpověď..."
+                  rows={1}
+                  className="w-full p-3 pl-4 pr-10 rounded-2xl bg-surfaceAlt/50 border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all resize-none min-h-[48px] max-h-32"
+                  style={{ height: 'auto', minHeight: '48px' }}
+                  onInput={(e) => {
+                    const target = e.target as HTMLTextAreaElement;
+                    target.style.height = 'auto';
+                    target.style.height = `${Math.min(target.scrollHeight, 128)}px`;
+                  }}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={!newReply.trim()}
+                className="p-3 bg-primary text-white rounded-xl shadow-lg shadow-primary/20 hover:bg-primary-dark active:scale-95 transition-all disabled:opacity-50 disabled:shadow-none disabled:active:scale-100 h-[48px] w-[48px] flex items-center justify-center"
+              >
+                <Send className="w-5 h-5" />
+              </button>
+            </form>
+          ) : (
+            <div className="flex items-center justify-between gap-4 p-1">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                  <Lock className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-text">Přihlas se pro odpověď</p>
+                  <p className="text-xs text-text-secondary">Podpoř autora svou reakcí</p>
+                </div>
+              </div>
+              <Link 
+                href="/login" 
+                className="px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl shadow-lg shadow-primary/20 hover:bg-primary-dark transition-colors"
+              >
+                Přihlásit
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );
+
 }

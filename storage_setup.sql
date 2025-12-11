@@ -30,3 +30,26 @@ create policy "Users can update own images"
 create policy "Users can delete own images"
   on storage.objects for delete
   using ( bucket_id = 'mood-images' and auth.uid() = owner );
+
+
+-- 4. Create a storage bucket for avatars
+insert into storage.buckets (id, name, public)
+values ('avatars', 'avatars', true)
+on conflict (id) do nothing;
+
+-- 5. Set up security policies for the avatars bucket
+create policy "Public Access Avatars"
+  on storage.objects for select
+  using ( bucket_id = 'avatars' );
+
+create policy "Authenticated users can upload avatars"
+  on storage.objects for insert
+  with check ( bucket_id = 'avatars' and auth.role() = 'authenticated' );
+
+create policy "Users can update own avatars"
+  on storage.objects for update
+  using ( bucket_id = 'avatars' and auth.uid() = owner );
+
+create policy "Users can delete own avatars"
+  on storage.objects for delete
+  using ( bucket_id = 'avatars' and auth.uid() = owner );

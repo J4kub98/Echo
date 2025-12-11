@@ -1,15 +1,24 @@
 import type { Metadata, Viewport } from "next";
-import { Manrope } from "next/font/google";
+import { Manrope, Playfair_Display } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
+import { ThemeProvider } from "@/lib/theme-context";
 import { ClientLayout } from "@/components/layout/ClientLayout";
+import { Toaster } from "sonner";
 
 const manrope = Manrope({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-manrope",
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+});
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-playfair",
+  weight: ["400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
@@ -37,8 +46,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
+  userScalable: true,
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#FDFCF8" },
     { media: "(prefers-color-scheme: dark)", color: "#1C1917" },
@@ -51,12 +60,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={manrope.variable}>
-      <body className="font-sans antialiased bg-background text-text">
-        <AuthProvider>
-          <ClientLayout>{children}</ClientLayout>
-          <Analytics />
-        </AuthProvider>
+    <html lang="cs" className={`${manrope.variable} ${playfair.variable}`} suppressHydrationWarning>
+      <body className="font-sans antialiased bg-background text-text selection:bg-primary/20 selection:text-primary">
+        <ThemeProvider>
+          <AuthProvider>
+            <ClientLayout>{children}</ClientLayout>
+            <Toaster position="top-center" richColors closeButton theme="system" />
+            <Analytics />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
