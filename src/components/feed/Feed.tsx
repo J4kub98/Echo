@@ -167,7 +167,7 @@ export function Feed() {
 
     } catch (error) {
       console.error("Error toggling like:", error);
-      fetchEntries(); // Revert on error
+      fetchEntries(0, true); // Revert on error
     }
   }
 
